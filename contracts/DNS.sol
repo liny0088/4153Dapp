@@ -1,46 +1,47 @@
 pragma solidity >0.4.2;
 
-import './Bid.sol';
+import './Bid_Event.sol';
 
 contract DNS {
 
-    // store candidate, read candidiat, constructor
-
-    // string public candidate;
-    // uint public votes;
     struct Domain {
-        uint  id;
         string  domain_name;
         bool  registered;
-        string  owner_address; // address type
+        address owner_address;
+        uint price; // address type
         }
 
-    struct Bid_Event{
-        uint domain_id;
-        uint cur_highest_price;
-        bool ongoing;
-        string  cur_higehst_address;  // address type
-        uint bit_count;
-        Bid[] bids;
-    }
-
-    mapping(uint => Domain) public domains;
+    mapping(string => Domain) public domains;
     uint public domain_count = 0;
 
-    mapping(uint => Bid_Event) public bid_events;
+    mapping(string => Bid_Event) public bid_events;
     uint public event_count = 0;
 
-    constructor () public {
-        domains[0] = Domain(0, "yl.ntu", false, "0");
-        domains[1] = Domain(1, "ct.ntu", false, "0");
-        domain_count = 2;
+    constructor() public {
+        address yuling = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
+        createNewDNSEntry( "yl.ntu" , yuling, 88); // Address = 0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9   address owner = 0xc0ffee254729296a45a3885639AC7E10F9d54979
         // Bid[] memory bids;
-        bid_events[event_count] = Bid_Event( 1, 200, false, "yl_address" , 0 , new Bid[](0));
-        event_count += 1;
+        // bid_events[event_count] = Bid_Event( 1, 200, false, "yl_address" , 0 , new Bid[](0));
     }
 
-    function Start_Bid (uint _domainid) public{
-        bid_events[event_count] = Bid_Event( _domainid, 0, true, "999" , 0 , new Bid[](10));
+    //  every Name has a Bid map containig all bids for the map
+    //  mapping (bytes32 => BidContainer) bidContainerMap;
+
+ 
+
+        function createNewDNSEntry( string memory _name, address _winner, uint _price) private returns (bool _created)
+        {
+        domains[_name].domain_name = _name;
+        domains[_name].owner_address = _winner;
+        domains[_name].registered = true;
+        domains[_name].price = _price;
+    domain_count += 1;
+    return true;
+    }
+
+    function Start_Bid (uint _price, string memory _domain_name) public {
+        Bid_Event _event = new Bid_Event( _price, _domain_name);
+        bid_events[_domain_name] = _event;
         event_count += 1;
     }
 
@@ -48,27 +49,27 @@ contract DNS {
         // return index
     // }
 
-    function Insert_Bid(uint _amount, uint _bidder, uint _index) public{  // later change to address the _bidder
-        Bid _bid = new Bid(_amount, address(_bidder)); 
-        bid_events[_index].bids.push(_bid);
-        bid_events[_index].bit_count += 1;
+    function Insert_Bid(uint _amount, string memory _domain_name) public{  // later change to address the _bidder
+        bid_events[_domain_name].addBid(_amount, msg.sender);
     }
 
-    function End_Bid (uint _index) public{
-        bid_events[_index].ongoing = false;
-        domains[bid_events[_index].domain_id].owner_address = bid_events[_index].cur_higehst_address;
-        // transcation ??
+    function End_Bid ( string memory _domain_name) public{
+        address winner = bid_events[_domain_name].endBidGetWinner();
+        uint price = bid_events[_domain_name].getWinnerPrice(); // need ?
+        createNewDNSEntry( _domain_name, winner, price);
     }
 
-
+     function getTotalEtherHeldInContract() public view returns (uint) {
+         return address(this).balance;
+     }
 
     // struct Buyer{
     //     uint ip;
     //     uint price;
     //     string name;
     // }
-
-
-
-
+    
+    function checkNameExists(string memory _name) public view returns(bool _exists){
+        return domains[_name].registered;
+    }
 }
