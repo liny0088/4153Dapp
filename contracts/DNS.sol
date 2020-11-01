@@ -11,8 +11,10 @@ contract DNS {
         uint price; // address type
         }
 
-    mapping(string => Domain) public domains;
+    // mapping(string => Domain) public domains;
     uint public domain_count = 0;
+
+    Domain[] domains;
 
     mapping(string => Bid_Event) public bid_events;
     uint public event_count = 0;
@@ -31,10 +33,11 @@ contract DNS {
 
         function createNewDNSEntry( string memory _name, address _winner, uint _price) private returns (bool _created)
         {
-        domains[_name].domain_name = _name;
-        domains[_name].owner_address = _winner;
-        domains[_name].registered = true;
-        domains[_name].price = _price;
+        // domains[_name].domain_name = _name;
+        // domains[_name].owner_address = _winner;
+        // domains[_name].registered = true;
+        // domains[_name].price = _price;
+        domains.push(Domain(_name, true,_winner, _price));
     domain_count += 1;
     return true;
     }
@@ -63,17 +66,17 @@ contract DNS {
          return address(this).balance;
      }
 
-    function Search_Registered ( string memory _domain_name) public view returns (address){
-        if(checkNameExists(_domain_name))
-        {address owner = domains[_domain_name].owner_address ;
+    function Search_Registered ( uint  _index) public view returns (address){
+        if(checkNameExists(_index))
+        {address owner = domains[_index].owner_address ;
         return owner;}
         else
         {return address(0);}
     }
 
-    function Search_bid_Time ( string memory _domain_name) public view returns (uint){
-        if(checkNameExists(_domain_name))
-        {uint startTime = bid_events[_domain_name].getTime() ;
+    function Search_bid_Time ( string memory _domain_name) public view returns (uint startTime){
+        if(bid_events[_domain_name].ongoing())
+        { startTime = bid_events[_domain_name].getTime() ;
         return startTime;}
         else
         {return uint(0);}
@@ -85,7 +88,7 @@ contract DNS {
     //     string name;
     // }
     
-    function checkNameExists(string memory _name) public view returns(bool _exists){
-        return domains[_name].registered;
+    function checkNameExists(uint _index) public view returns(bool _exists){
+        return domains[_index].registered;
     }
 }

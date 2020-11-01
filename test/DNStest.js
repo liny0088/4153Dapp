@@ -90,7 +90,7 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
     return DNS.deployed().then(function(instance) {
     dnsInstance = instance;
     dnsInstance.Start_Bid(120, "yuling111.ntu");
-    dnsInstance.Insert_Bid(200, "yuling111.ntu") 
+    dnsInstance.Insert_Bid(200, "yuling111.ntu"); 
     dnsInstance.End_Bid("yuling111.ntu");    
     return instance.Search_Registered.call('blockchain.ntu')
     .then(function(owner) {
@@ -99,13 +99,14 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
     })
   });
 
-it("Search registered address gives the result", function() {
+it("Search non-ongoing bids, returns 0 time", function() {
     return DNS.deployed().then(function(instance) {
     dnsInstance = instance;
     dnsInstance.Start_Bid(120, "yuling111.ntu"); 
-    return instance.Search_bid_Time.call('yuling111.ntu')
+    console.log(instance.Search_bid_Time.call("yuling111.ntu"));
+    return instance.Search_bid_Time.call("blablah.ntu")
     .then(function(time) {
-      assert.isAtLeast(time, Math.floor(Date.now() / 1000)-10);
+      assert.equal(time, 0);
     });
     })
   });
