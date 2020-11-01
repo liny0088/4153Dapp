@@ -99,6 +99,16 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
     })
   });
 
+it("Search registered address gives the result", function() {
+    return DNS.deployed().then(function(instance) {
+    dnsInstance = instance;
+    dnsInstance.Start_Bid(120, "yuling111.ntu"); 
+    return instance.Search_bid_Time.call('yuling111.ntu')
+    .then(function(time) {
+      assert.isAtLeast(time, Math.floor(Date.now() / 1000)-10);
+    });
+    })
+  });
 
 //   it("Bid started with yuling111.ntu, with 1 more bid, the price is right", function() {
 //     return DNS.deployed().then(function(instance) {

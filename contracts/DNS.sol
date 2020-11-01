@@ -71,6 +71,14 @@ contract DNS {
         {return address(0);}
     }
 
+    function Search_bid_Time ( string memory _domain_name) public view returns (uint){
+        if(checkNameExists(_domain_name))
+        {uint startTime = bid_events[_domain_name].getTime() ;
+        return startTime;}
+        else
+        {return uint(0);}
+    }
+
     // struct Buyer{
     //     uint ip;
     //     uint price;

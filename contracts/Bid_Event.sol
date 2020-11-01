@@ -8,7 +8,8 @@ contract Bid_Event {
     uint public cur_highest_price;
     bool public ongoing;
     address public cur_highest_address;
-    
+    uint public createTime;
+
     mapping(address => Bid) public bids;  // Address = 0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9   address owner = 0xc0ffee254729296a45a3885639AC7E10F9d54979
     
     uint public bit_count;
@@ -17,6 +18,7 @@ contract Bid_Event {
         cur_highest_price = _cur_highest_price;
         cur_highest_address = msg.sender;
         domain_name = _domain_name; 
+        createTime = block.timestamp;
         ongoing = true;
         bit_count += 1;
     }
@@ -46,5 +48,9 @@ contract Bid_Event {
 
     function getWinnerPrice() public view returns (uint amount){
         return cur_highest_price;
+    }
+
+    function getTime() public view returns (uint amount){
+        return createTime;
     }
 }
