@@ -15,8 +15,17 @@ it("initializes with 1 domain", function() {
 it("initializes with the domain yl.ntu, checkNameExists works", function() {
     return DNS.deployed().then(function(instance) {
     return instance.checkNameExists.call('yl.ntu')
-    .then(function(reserved) {
-      assert.equal(reserved, true, 'yl.ntu is registered');
+    .then(function(registered) {
+      assert.equal(registered, true, 'yl.ntu is registered');
+    });
+    })
+  });
+
+  it("initialized, checkNameExists gives false for non-existent names", function() {
+    return DNS.deployed().then(function(instance) {
+    return instance.checkNameExists.call('yyyyllll.ntu')
+    .then(function(registered) {
+      assert.equal(registered, false, 'yyyyllll.ntu is NOT registered');
     });
     //   assert.equal(instance.checkNameExists("yl.ntu"), true);
     })
@@ -62,6 +71,32 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
         console.log("address of added domain yuling111.ntu, is ", Domain[2]);
         assert.equal(Domain[3], 200);
       });
+  });
+
+  it("Search registered address gives the result", function() {
+    return DNS.deployed().then(function(instance) {
+    dnsInstance = instance;
+    dnsInstance.Start_Bid(120, "yuling111.ntu");
+    dnsInstance.Insert_Bid(200, "yuling111.ntu") 
+    dnsInstance.End_Bid("yuling111.ntu");    
+    return instance.Search_Registered.call('yuling111.ntu')
+    .then(function(owner) {
+      assert.notEqual(owner, '0x0000000000000000000000000000000000000000');
+    });
+    })
+  });
+
+  it("Search non-registered address gives address 0", function() {
+    return DNS.deployed().then(function(instance) {
+    dnsInstance = instance;
+    dnsInstance.Start_Bid(120, "yuling111.ntu");
+    dnsInstance.Insert_Bid(200, "yuling111.ntu") 
+    dnsInstance.End_Bid("yuling111.ntu");    
+    return instance.Search_Registered.call('blockchain.ntu')
+    .then(function(owner) {
+      assert.equal(owner, '0x0000000000000000000000000000000000000000');
+    });
+    })
   });
 
 

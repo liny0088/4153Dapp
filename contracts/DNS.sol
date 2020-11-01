@@ -63,6 +63,14 @@ contract DNS {
          return address(this).balance;
      }
 
+    function Search_Registered ( string memory _domain_name) public view returns (address){
+        if(checkNameExists(_domain_name))
+        {address owner = domains[_domain_name].owner_address ;
+        return owner;}
+        else
+        {return address(0);}
+    }
+
     // struct Buyer{
     //     uint ip;
     //     uint price;
