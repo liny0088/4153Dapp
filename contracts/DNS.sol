@@ -53,8 +53,9 @@ contract DNS {
 
         domains.push(Domain(_name, true,_winner, _price));
         domain_count += 1;
-        return true;
         emit DomainRegistered(_name, _winner);
+        return true;
+        
     }
 
     function Start_Bid (uint _price, string memory _domain_name) public {
@@ -73,9 +74,22 @@ contract DNS {
 
     function End_Bid ( string memory _domain_name) public{
         address winner = bid_events[_domain_name].endBidGetWinner();
-        uint price = bid_events[_domain_name].getWinnerPrice(); // need ?
+        Bid_Event _event = bid_events[_domain_name];
+        uint price = _event.getWinnerPrice();
         createNewDNSEntry( _domain_name, winner, price);
     }
+
+    function Debug_get_overbid ( string memory _domain_name) public view returns(uint count){
+        Bid_Event _event = bid_events[_domain_name];
+        count = _event.over_bid_count();
+        return count;
+    }
+    function Debug_get_winnerprice ( string memory _domain_name) public view returns(uint price){
+        Bid_Event _event = bid_events[_domain_name];
+        price = _event.getWinnerPrice();
+        return price;
+    }
+
 
      function getTotalEtherHeldInContract() public view returns (uint) {
          return address(this).balance;
@@ -103,8 +117,9 @@ contract DNS {
     }
 
     function Search_bid_Time ( string memory _domain_name) public view returns (uint startTime){
-        if(bid_events[_domain_name].ongoing())
-        { startTime = bid_events[_domain_name].getTime() ;
+        Bid_Event _event = bid_events[_domain_name];
+        if(_event.ongoing())
+        { startTime = _event.getTime() ;
         return startTime;}
         else
         {return uint(0);}
@@ -127,9 +142,12 @@ contract DNS {
 
     //returns the registered domain information in the array registeredDomains at the index _index
     function getDomain(uint _index) public view
-    returns(string memory domainName,address owner){
+    returns(string memory domainName, address owner, bool reg,  uint price){
         domainName = domains[_index].domain_name;
         owner = domains[_index].owner_address;
+        reg = domains[_index].registered;
+        price = domains[_index].price;
+        return (domainName, owner, reg, price);
     }
 
     //returns the number of registered domains
