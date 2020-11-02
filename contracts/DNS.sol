@@ -54,7 +54,7 @@ contract DNS {
         domains.push(Domain(_name, true,_winner, _price));
         domain_count += 1;
         return true;
-        emit DomainRegistered(_domainName, _winner);
+        emit DomainRegistered(_name, _winner);
     }
 
     function Start_Bid (uint _price, string memory _domain_name) public {
@@ -81,21 +81,21 @@ contract DNS {
          return address(this).balance;
      }
 
-    function Search_by_Name ( string _name) public view returns (address _add, bool _registered, uint _idx){
-        for (int i = 0; i< domain_count; i++){
-            string cur_name = domains[i].domain_name;
-            if (cur_name == _name){
+    function Search_by_Name ( string memory _name) public view returns (address _add, bool _registered, uint _idx){
+        for (uint i = 0; i< domain_count; i++){
+            string memory cur_name = domains[i].domain_name;
+            if (keccak256(bytes(cur_name)) == keccak256(bytes(_name))){
                 _add = domains[i].owner_address;
                 _registered = domains[i].registered;
                 _idx = i;
                 return ( _add,  _registered , _idx) ;
             }
         }
-        return ( address(0), false, -1); // when not found
+        return ( address(0), false, 0); // when not found
     }
 
     function Search_Registered ( uint  _index) public view returns (address){
-        if(checkNameExists(_index))
+        if(checkIndexExists(_index))
         {address owner = domains[_index].owner_address ;
         return owner;}
         else
@@ -120,7 +120,7 @@ contract DNS {
         return domains[_index].registered;
     }
 
-    function checkNameExists(string _name) public view returns(bool _exists){
+    function checkNameExists(string memory _name) public view returns(bool _exists){
         return Search_by_Name ( _name)[1];
     }
 
@@ -144,7 +144,7 @@ contract DNS {
         // uint idx = Search_by_Name(_domainName)[2];
         domains[_domainIndex].registered = false;
         domains[_domainIndex] = domains[domain_count-1];
-        delete domain[domain_count-1];
+        delete domains[domain_count-1];
         domain_count --;
         emit DomainUnregistered(_domainName, msg.sender);
     }

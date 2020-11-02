@@ -33,7 +33,7 @@ it("initializes with the domain yl.ntu, checkNameExists works", function() {
 
 it("initializes with yl.ntu and registered is true", function() {
     return DNS.deployed().then(function(instance) {
-      return instance.domains("yl.ntu");
+      return instance.domains(0);
     }).then(function(Domain) {
         assert.equal(Domain[1], true);
         assert.equal(Domain[0], "yl.ntu");
@@ -49,7 +49,7 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
         dnsInstance = instance;
         dnsInstance.Start_Bid(120, "yuling111.ntu");
         dnsInstance.End_Bid("yuling111.ntu");
-        return instance.domains("yuling111.ntu");
+        return instance.domains(1);
      }).then(function(Domain) {
         assert.equal(Domain[1], true);
         assert.equal(Domain[0], "yuling111.ntu");
@@ -64,7 +64,7 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
         dnsInstance.Start_Bid(120, "yuling111.ntu");
         dnsInstance.Insert_Bid(200, "yuling111.ntu") 
         dnsInstance.End_Bid("yuling111.ntu");
-        return instance.domains("yuling111.ntu");
+        return instance.domains(1);
      }).then(function(Domain) {
         assert.equal(Domain[1], true);
         assert.equal(Domain[0], "yuling111.ntu");
@@ -79,9 +79,10 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
     dnsInstance.Start_Bid(120, "yuling111.ntu");
     dnsInstance.Insert_Bid(200, "yuling111.ntu") 
     dnsInstance.End_Bid("yuling111.ntu");    
-    return instance.Search_Registered.call('yuling111.ntu')
-    .then(function(owner) {
-      assert.notEqual(owner, '0x0000000000000000000000000000000000000000');
+    return instance.Search_by_Name.call('yuling111.ntu')
+    .then(function(domain) {
+      console.log("address is :", domain[0]);
+      assert.notEqual(domain[0], '0x0000000000000000000000000000000000000000');
     });
     })
   });
@@ -92,9 +93,9 @@ it("Bid started with yuling111.ntu, ended with winner", function() {
     dnsInstance.Start_Bid(120, "yuling111.ntu");
     dnsInstance.Insert_Bid(200, "yuling111.ntu"); 
     dnsInstance.End_Bid("yuling111.ntu");    
-    return instance.Search_Registered.call('blockchain.ntu')
-    .then(function(owner) {
-      assert.equal(owner, '0x0000000000000000000000000000000000000000');
+    return instance.Search_by_Name.call('blockchain.ntu')
+    .then(function(domain) {
+      assert.equal(domain[0], '0x0000000000000000000000000000000000000000');
     });
     })
   });
