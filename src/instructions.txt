@@ -1,0 +1,16 @@
+if you restart a new ganache environment, use same mmemonic to have same account.
+So that no need keep importing account into metamask
+after restart ganache new environment reset account by clicking top right metamask icon then settings then click advanced and then reset account.
+
+How to import account from ganache.
+in ganache click the key icon to get private key
+
+copy key and paste into metamask
+
+
+
+create new ganache environment with same accounts use mmemonic
+spin tenant dose enable job aware clap expose orient film jelly fringe
+
+
+when switch account in metamask rmbr to refresh page to update the current account

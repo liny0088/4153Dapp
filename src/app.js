@@ -62,6 +62,15 @@ App = {
 
     // Hydrate the smart contract with values from the blockchain
     App.domainRegistrar = await App.contracts.DomainRegistrar.deployed()
+
+
+    
+    const dns = await $.getJSON('DNS.json')
+    App.contracts.DNS = TruffleContract(dns)
+    App.contracts.DNS.setProvider(App.web3Provider)
+    // Hydrate the smart contract with values from the blockchain
+    App.dns = await App.contracts.DNS.deployed()
+
   },
 
   render: async () => {
@@ -86,14 +95,14 @@ App = {
     $('#regDomainList').html("")
     $('#yourDomainList').html("")
     // Load the total task count from the blockchain
-    let domainCount = await App.domainRegistrar.getDomainsLength()
+    let domainCount = await App.dns.getDomainsLength()
     const $domainTemplate = $('.domainTemplate')
     domainCount = domainCount.toNumber()
     console.log(domainCount)
     // Render out each task with a new task template
     for (var i = 0; i < domainCount; i++) {
       // Fetch the task data from the blockchain
-      const domain = await App.domainRegistrar.getDomain(i)
+      const domain = await App.dns.getDomain(i)
       console.log(domain)
       const domainName = domain[0] +".ntu"
       const owner = domain[1]
@@ -166,7 +175,7 @@ App = {
     }
     else{
       App.domainSearched = content
-      const registeredStatus = await App.domainRegistrar.domains(content)
+      const registeredStatus = await App.dns.checkNameExists(content) // content is the domain name entered by user in UI
       const reg = $('#registerStatus')
       if(registeredStatus == false)
       {
@@ -178,14 +187,16 @@ App = {
     App.setLoading(false)
     App.render();
   },
+
   registerDomain: async () => {
     App.setLoading(true)
-    await App.domainRegistrar.registerDomain(App.domainSearched)
+    await App.dns.createNewDNSEntry(App.domainSearched, '0x0000000000000000000000000000000000000000', 0)
     $('#regButton').hide()
     alert(App.domainSearched + "domain registered")
     App.setLoading(false)
     App.render();
   },
+
   unregisterDomain: async (e) => {
     e.preventDefault()
     App.setLoading(true)
@@ -193,7 +204,7 @@ App = {
     const index = e.target.getAttribute('index')
     const domainName = e.target.getAttribute('domainid')
     console.log(domainName)
-    await App.domainRegistrar.unregisterDomain(domainName, parseInt(index))
+    await App.dns.unregisterDomain(domainName, parseInt(index))
     App.setLoading(false)
     App.render();
   },

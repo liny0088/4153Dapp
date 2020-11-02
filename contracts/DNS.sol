@@ -11,6 +11,16 @@ contract DNS {
         uint price; // address type
         }
 
+    event DomainRegistered(
+    string domainName,
+    address owner
+  );
+
+    event DomainUnregistered(
+    string domainName,
+    address owner
+  );
+
     // mapping(string => Domain) public domains;
     uint public domain_count = 0;
 
@@ -37,9 +47,14 @@ contract DNS {
         // domains[_name].owner_address = _winner;
         // domains[_name].registered = true;
         // domains[_name].price = _price;
+        if (_winner == address(0)){
+            _winner = msg.sender;
+        }
+
         domains.push(Domain(_name, true,_winner, _price));
-    domain_count += 1;
-    return true;
+        domain_count += 1;
+        return true;
+        emit DomainRegistered(_domainName, _winner);
     }
 
     function Start_Bid (uint _price, string memory _domain_name) public {
@@ -66,6 +81,19 @@ contract DNS {
          return address(this).balance;
      }
 
+    function Search_by_Name ( string _name) public view returns (address _add, bool _registered, uint _idx){
+        for (int i = 0; i< domain_count; i++){
+            string cur_name = domains[i].domain_name;
+            if (cur_name == _name){
+                _add = domains[i].owner_address;
+                _registered = domains[i].registered;
+                _idx = i;
+                return ( _add,  _registered , _idx) ;
+            }
+        }
+        return ( address(0), false, -1); // when not found
+    }
+
     function Search_Registered ( uint  _index) public view returns (address){
         if(checkNameExists(_index))
         {address owner = domains[_index].owner_address ;
@@ -88,7 +116,37 @@ contract DNS {
     //     string name;
     // }
     
-    function checkNameExists(uint _index) public view returns(bool _exists){
+    function checkIndexExists(uint _index) public view returns(bool _exists){
         return domains[_index].registered;
     }
+
+    function checkNameExists(string _name) public view returns(bool _exists){
+        return Search_by_Name ( _name)[1];
+    }
+
+    //returns the registered domain information in the array registeredDomains at the index _index
+    function getDomain(uint _index) public view
+    returns(string memory domainName,address owner){
+        domainName = domains[_index].domain_name;
+        owner = domains[_index].owner_address;
+    }
+
+    //returns the number of registered domains
+    function getDomainsLength() public view returns(uint count) {
+        return domain_count.length;
+    }
+
+    // function registerDomain(string memory _domainName) public  --->>> function createNewDNSEntry( string memory _name, address _winner, uint _price) 
+
+    function unregisterDomain(string memory _domainName , uint _domainIndex) public {
+        require(Search_by_Name(_domainName)[1] == true,"domain is not registered");
+        require(domains[_domainIndex].owner_address == msg.sender,"not owner of domain");
+        // uint idx = Search_by_Name(_domainName)[2];
+        domains[_domainIndex].registered = false;
+        domains[_domainIndex] = domains[domain_count-1];
+        delete domain[domain_count-1];
+        domain_count --;
+        emit DomainUnregistered(_domainName, msg.sender);
+    }
+
 }
