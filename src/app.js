@@ -49,22 +49,20 @@ App = {
 
   loadContract: async () => {
     // Create a JavaScript version of the smart contract
-    const todoList = await $.getJSON('TodoList.json')
-    App.contracts.TodoList = TruffleContract(todoList)
-    App.contracts.TodoList.setProvider(App.web3Provider)
+    // const todoList = await $.getJSON('TodoList.json')
+    // App.contracts.TodoList = TruffleContract(todoList)
+    // App.contracts.TodoList.setProvider(App.web3Provider)
 
-    // Hydrate the smart contract with values from the blockchain
-    App.todoList = await App.contracts.TodoList.deployed()
+    // // Hydrate the smart contract with values from the blockchain
+    // App.todoList = await App.contracts.TodoList.deployed()
 
-    const domainRegistrar = await $.getJSON('DomainRegistrar.json')
-    App.contracts.DomainRegistrar = TruffleContract(domainRegistrar)
-    App.contracts.DomainRegistrar.setProvider(App.web3Provider)
+    // const domainRegistrar = await $.getJSON('DomainRegistrar.json')
+    // App.contracts.DomainRegistrar = TruffleContract(domainRegistrar)
+    // App.contracts.DomainRegistrar.setProvider(App.web3Provider)
 
-    // Hydrate the smart contract with values from the blockchain
-    App.domainRegistrar = await App.contracts.DomainRegistrar.deployed()
+    // // Hydrate the smart contract with values from the blockchain
+    // App.domainRegistrar = await App.contracts.DomainRegistrar.deployed()
 
-
-    
     const dns = await $.getJSON('DNS.json')
     App.contracts.DNS = TruffleContract(dns)
     App.contracts.DNS.setProvider(App.web3Provider)
@@ -104,7 +102,7 @@ App = {
       // Fetch the task data from the blockchain
       const domain = await App.dns.getDomain(i)
       console.log(domain)
-      const domainName = domain[0] +".ntu"
+      const domainName = domain[0] + ".ntu"
       const owner = domain[1]
 
       // Create the html for the task
@@ -126,38 +124,39 @@ App = {
       $newTaskTemplate.show()
     }
   },
-  renderTasks: async () => {
-    // Load the total task count from the blockchain
-    const taskCount = await App.todoList.taskCount()
-    const $taskTemplate = $('.taskTemplate')
 
-    // Render out each task with a new task template
-    for (var i = 1; i <= taskCount; i++) {
-      // Fetch the task data from the blockchain
-      const task = await App.todoList.tasks(i)
-      const taskId = task[0].toNumber()
-      const taskContent = task[1]
-      const taskCompleted = task[2]
+  // renderTasks: async () => {
+  //   // Load the total task count from the blockchain
+  //   const taskCount = await App.todoList.taskCount()
+  //   const $taskTemplate = $('.taskTemplate')
 
-      // Create the html for the task
-      const $newTaskTemplate = $taskTemplate.clone()
-      $newTaskTemplate.find('.content').html(taskContent)
-      $newTaskTemplate.find('input')
-                      .prop('name', taskId)
-                      .prop('checked', taskCompleted)
-                      .on('click', App.toggleCompleted)
+  //   // Render out each task with a new task template
+  //   for (var i = 1; i <= taskCount; i++) {
+  //     // Fetch the task data from the blockchain
+  //     const task = await App.todoList.tasks(i)
+  //     const taskId = task[0].toNumber()
+  //     const taskContent = task[1]
+  //     const taskCompleted = task[2]
 
-      // Put the task in the correct list
-      if (taskCompleted) {
-        $('#completedTaskList').append($newTaskTemplate)
-      } else {
-        $('#taskList').append($newTaskTemplate)
-      }
+  //     // Create the html for the task
+  //     const $newTaskTemplate = $taskTemplate.clone()
+  //     $newTaskTemplate.find('.content').html(taskContent)
+  //     $newTaskTemplate.find('input')
+  //                     .prop('name', taskId)
+  //                     .prop('checked', taskCompleted)
+  //                     .on('click', App.toggleCompleted)
 
-      // Show the task
-      $newTaskTemplate.show()
-    }
-  },
+  //     // Put the task in the correct list
+  //     if (taskCompleted) {
+  //       $('#completedTaskList').append($newTaskTemplate)
+  //     } else {
+  //       $('#taskList').append($newTaskTemplate)
+  //     }
+
+  //     // Show the task
+  //     $newTaskTemplate.show()
+  //   }
+  // },
 
   createTask: async () => {
     App.setLoading(true)
@@ -165,6 +164,7 @@ App = {
     await App.todoList.createTask(content)
     window.location.reload()
   },
+
   searchDomain: async () => {
     App.setLoading(true)
     $('#regButton').hide()
