@@ -121,7 +121,8 @@ contract DNS {
     }
 
     function checkNameExists(string memory _name) public view returns(bool _exists){
-        return Search_by_Name ( _name)[1];
+         ( , _exists, ) = Search_by_Name(_name);
+        return _exists; 
     }
 
     //returns the registered domain information in the array registeredDomains at the index _index
@@ -133,13 +134,14 @@ contract DNS {
 
     //returns the number of registered domains
     function getDomainsLength() public view returns(uint count) {
-        return domain_count.length;
+        return domain_count;
     }
 
     // function registerDomain(string memory _domainName) public  --->>> function createNewDNSEntry( string memory _name, address _winner, uint _price) 
 
     function unregisterDomain(string memory _domainName , uint _domainIndex) public {
-        require(Search_by_Name(_domainName)[1] == true,"domain is not registered");
+        ( , bool _exists, ) = Search_by_Name(_domainName);
+        require(_exists == true,"domain is not registered");
         require(domains[_domainIndex].owner_address == msg.sender,"not owner of domain");
         // uint idx = Search_by_Name(_domainName)[2];
         domains[_domainIndex].registered = false;
