@@ -3,12 +3,12 @@ var DNS = artifacts.require("./DNS.sol");
 contract("DNS", function(accounts) {
     var dnsInstance;
 
-it("initializes with 1 domain", function() {
+it("initializes with 2 domains", function() {
     return DNS.deployed().then(function(instance) {
     return instance.domain_count();
     //   assert.equal(instance.checkNameExists("yl.ntu"), true);
     }).then(function(count) {
-        assert.equal(count, 1);
+        assert.equal(count, 2);
       });
   });
 
@@ -43,6 +43,20 @@ it("initializes with yl.ntu and registered is true", function() {
       });
     
   });
+
+// it("initializes can call createNewDNSEntry with name, address = 0, price = 0", function() {
+//     return DNS.deployed().then(function(instance) {
+//       instance.createNewDNSEntry("test.ntu",'0x0000000000000000000000000000000000000000', 0 );
+//       return instance.getDomain.call(1);
+//     }).then(function(Domain) {
+//         assert.equal(Domain[2], true);
+//         assert.equal(Domain[0], "test.ntu");
+//         console.log("address of added domain yl.ntu, is ", Domain[1]);
+//         assert.equal(Domain[3], 0);
+
+//       });
+    
+//   });
 
 // it("Bid started with yuling111.ntu, ended with winner", function() {
 //     return DNS.deployed().then(function(instance) {
@@ -79,7 +93,7 @@ it("Bid started with yuling111.ntu, with 1 more bid, in Bid Event price is right
         return instance.Debug_get_winnerprice.call("yuling111.ntu");
      }).then(function(count) {
         assert.equal(count, 200);
-        return dnsInstance.getDomain.call(1);
+        return dnsInstance.getDomain.call(2);
       }).then(function(Domain) {
         assert.equal(Domain[2], true);
         assert.equal(Domain[0], "yuling111.ntu");
@@ -94,7 +108,7 @@ it("Bid started with yuling111.ntu, with 1 more bid, in Bid Event price is right
         await dnsInstance.Start_Bid(120, "yuling111.ntu");
         await dnsInstance.Insert_Bid(200, "yuling111.ntu") 
         await dnsInstance.End_Bid("yuling111.ntu");  
-        return instance.getDomain.call(1);
+        return instance.getDomain.call(2);
      }).then(function(Domain) {
         assert.equal(Domain[2], true);
         assert.equal(Domain[0], "yuling111.ntu");
@@ -143,14 +157,14 @@ it("Search ongoing bids, returns correct time", function() {
   });
 
 it("Search non-ongoing bids, returns 0 time", function() {
-    return DNS.deployed().then(function(instance) {
+    return DNS.deployed().then(async(instance) => {
     dnsInstance = instance;
-    dnsInstance.Start_Bid(120, "yuling111.ntu"); 
-    dnsInstance.End_Bid("yuling111.ntu"); 
-    return instance.Search_bid_Time.call("yuling111.ntu")
+    await dnsInstance.Start_Bid(110, "yuling222.ntu"); 
+    await dnsInstance.End_Bid("yuling222.ntu"); 
+    return instance.Search_bid_Time.call("yuling222.ntu")
     .then(function(time) {
       console.log("creation time is:", time.toNumber());
-      assert.equal(time.toNumber(), 0);
+      assert.equal(time.toNumber(), 0); // cur time - time > 180
     });
     })
   });

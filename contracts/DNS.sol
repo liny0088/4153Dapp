@@ -31,8 +31,9 @@ contract DNS {
 
     constructor() public {
         address yuling = 0xc0ffee254729296a45a3885639AC7E10F9d54979;
+        address ct = 0x8379Ff5bBCff7B65df365aD5406b2CF5C94239d4;
         createNewDNSEntry( "yl.ntu" , yuling, 88); // Address = 0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9   address owner = 0xc0ffee254729296a45a3885639AC7E10F9d54979
-        // Bid[] memory bids;
+        createNewDNSEntry( "ct.ntu" , ct, 100); // Bid[] memory bids;
         // bid_events[event_count] = Bid_Event( 1, 200, false, "yl_address" , 0 , new Bid[](0));
     }
 
@@ -41,7 +42,7 @@ contract DNS {
 
  
 
-        function createNewDNSEntry( string memory _name, address _winner, uint _price) private returns (bool _created)
+        function createNewDNSEntry( string memory _name, address _winner, uint _price) public returns (bool _created)
         {
         // domains[_name].domain_name = _name;
         // domains[_name].owner_address = _winner;
@@ -51,7 +52,7 @@ contract DNS {
             _winner = msg.sender;
         }
 
-        domains.push(Domain(_name, true,_winner, _price));
+        domains.push(Domain(_name, true, _winner, _price));
         domain_count += 1;
         emit DomainRegistered(_name, _winner);
         return true;
@@ -73,10 +74,11 @@ contract DNS {
     }
 
     function End_Bid ( string memory _domain_name) public{
-        address winner = bid_events[_domain_name].endBidGetWinner();
         Bid_Event _event = bid_events[_domain_name];
+        if(_event.ongoing()){
+        address winner = bid_events[_domain_name].endBidGetWinner();
         uint price = _event.getWinnerPrice();
-        createNewDNSEntry( _domain_name, winner, price);
+        createNewDNSEntry( _domain_name, winner, price);}
     }
 
     function Debug_get_overbid ( string memory _domain_name) public view returns(uint count){
@@ -84,6 +86,7 @@ contract DNS {
         count = _event.over_bid_count();
         return count;
     }
+
     function Debug_get_winnerprice ( string memory _domain_name) public view returns(uint price){
         Bid_Event _event = bid_events[_domain_name];
         price = _event.getWinnerPrice();
